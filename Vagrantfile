@@ -65,8 +65,8 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
    config.vm.provision "shell", inline: <<-SHELL
-   rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
+   rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm   
    yes | yum -y install puppet
-   puppet apply /vagrant/default.pp
+   sudo puppet apply /vagrant/default.pp
    SHELL
 end
