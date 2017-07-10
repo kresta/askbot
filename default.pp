@@ -47,6 +47,12 @@ package { 'fabric':
     require => Package['epel-release']
 }
 
+package { 'uwsgi':
+    ensure => latest,
+    name   => 'uwsgi',
+    require => Package['epel-release']
+}
+
 package { 'vim-enhanced':
     ensure => latest,
     name   => 'vim-enhanced'
