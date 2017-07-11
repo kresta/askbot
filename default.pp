@@ -63,6 +63,11 @@ package { 'postgresql':
     name   => 'postgresql'
 }    
 
+package { 'git':
+    ensure => latest,
+    name   => 'git'
+}    
+
 service { 'nginx.service':
     ensure    => running,
     enable    => true,
