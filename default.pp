@@ -68,6 +68,11 @@ package { 'git':
     name   => 'git'
 }    
 
+package { 'python-virtualenv':
+    ensure => latest,
+    name   => 'python-virtualenv'
+}    
+
 service { 'nginx.service':
     ensure    => running,
     enable    => true,
