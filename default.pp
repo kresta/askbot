@@ -73,6 +73,11 @@ package { 'python-virtualenv':
     name   => 'python-virtualenv'
 }    
 
+package { 'gcc':
+    ensure => latest,
+    name   => 'gcc'
+}    
+
 service { 'nginx.service':
     ensure    => running,
     enable    => true,
