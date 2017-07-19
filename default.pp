@@ -56,47 +56,47 @@ package { 'uwsgi':
 package { 'vim-enhanced':
     ensure => latest,
     name   => 'vim-enhanced'
-}    
+}
 
 package { 'postgresql-server':
     ensure => latest,
     name   => 'postgresql-server'
-}    
+}
 
 package { 'postgresql-devel':
     ensure => latest,
     name   => 'postgresql-devel'
-} 
+}
 
 package { 'python-psycopg2.x86_64':
     ensure => latest,
     name   => 'python-psycopg2.x86_64'
-} 
+}
 
 package { 'git':
     ensure => latest,
     name   => 'git'
-}    
+}
 
 package { 'python-virtualenv':
     ensure => latest,
     name   => 'python-virtualenv'
-}    
+}
 
 package { 'gcc':
     ensure => latest,
     name   => 'gcc'
-}    
+}
 
 package { 'zlib-devel.x86_64':
     ensure => latest,
     name   => 'zlib-devel.x86_64'
-}    
+}
 
 package { 'libjpeg-turbo-devel':
     ensure => latest,
     name   => 'libjpeg-turbo-devel'
-}    
+}
 
 service { 'nginx.service':
     ensure    => running,
@@ -104,4 +104,19 @@ service { 'nginx.service':
     name      => 'nginx',
 #    subscribe => File['nginx.conf'],
     require   => Package['nginx']
+}
+
+service { 'postgresql-server':
+    ensure    => running,
+    enable    => true,
+    name      => 'postgresql',
+#    subscribe => File['nginx.conf'],
+    require   => Package['postgresql-server']
+}
+
+exec { 'sudo postgresql-setup initdb':
+    command => 'sudo postgresql-setup initdb',
+    path    => '/usr/local/bin/:/bin/',
+    # path    => [ '/usr/local/bin/', '/bin/' ],  # alternative syntax
+    require => Package['postgresql-server']
 }
