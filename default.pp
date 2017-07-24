@@ -53,6 +53,17 @@ package { 'uwsgi':
     require => Package['epel-release']
 }
 
+package { 'python2-pip':
+    ensure => latest,
+    name   => 'python2-pip',
+    require => Package['epel-release']
+}
+
+package { 'mc':
+    ensure => latest,
+    name   => 'mc'
+}
+
 package { 'vim-enhanced':
     ensure => latest,
     name   => 'vim-enhanced'
