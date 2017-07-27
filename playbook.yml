@@ -1,0 +1,16 @@
+##
+# Example Ansible playbook that uses the PostgreSQL module.
+#
+# This installs PostgreSQL on an Ubuntu system, creates a database called
+# "askbotdb" and a user called "django" with password "123456"
+# with access to the "askbotdb" database.
+#
+---
+- hosts: webservers
+  become: yes
+  gather_facts: no
+
+  tasks:
+  - name: install the latest version of Apache
+    yum: name=httpd state=latest
+

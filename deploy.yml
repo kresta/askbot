@@ -1,0 +1,41 @@
+##
+# Example Ansible playbook that uses the PostgreSQL module.
+#
+# This installs PostgreSQL on an Ubuntu system, creates a database called
+# "askbotdb" and a user called "django" with password "123456"
+# with access to the "askbotdb" database.
+#
+
+- hosts: webservers
+  become: yes
+  become_user: postgres
+  gather_facts: no
+
+  vars:
+    dbname: askbotdb
+    dbuser: askbot
+    dbpassword: 123456
+
+  tasks:
+  - name: ensure database is created
+    postgresql_db: name={{dbname}}
+
+  - name: ensure user has access to database
+    postgresql_user: db={{dbname}} name={{dbuser}} password={{dbpassword}} priv=ALL
+
+  - name: ensure user does not have unnecessary privilege
+    postgresql_user: name={{dbuser}} role_attr_flags=LOGIN
+  
+  - name: ensure no other user can access the database
+    postgresql_privs: db={{dbname}} role={{dbuser}} type=database priv=ALL state=absent
+
+  - name: install askbot
+    command: virtualenv askbot
+    chdir: askbot/
+    command: bin/activate
+    command: pip install uwsgi
+    command: git clone https://github.com/ASKBOT/askbot-devel.git askbot-devel
+    chdir: askbot-devel/
+    command: python setup.py develop
+    command: askbot-setup -n /home/vagrant/askbot/askbot-devel/ -e 1 -d askbotdb -u askbot -p 123456
+    command:  

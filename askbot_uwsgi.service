@@ -1,0 +1,14 @@
+[Unit]
+Description=uWSGI instance to serve AskBot
+After=network.target
+
+[Service]
+User=vagrant
+Group=nginx
+WorkingDirectory=/home/vagrant/askbot/askbot-devel
+Environment="PATH=/home/vagrant/askbot/bin"
+ExecStart=/home/vagrant/askbot/bin/uwsgi --ini askbot_uwsgi.ini
+
+[Install]
+WantedBy=multi-user.target
+
