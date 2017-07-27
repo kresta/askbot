@@ -1,8 +1,8 @@
 ##
-# Example Ansible playbook that uses the PostgreSQL module.
+# Example Ansible playbook on deploying AskBot Django Application
 #
-# This installs PostgreSQL on an Ubuntu system, creates a database called
-# "askbotdb" and a user called "django" with password "123456"
+# This installs PostgreSQL on an CentOS 7 system, creates a database called
+# "askbotdb" and a user called "askbot" with password "123456"
 # with access to the "askbotdb" database.
 #
 
@@ -29,6 +29,28 @@
   - name: ensure no other user can access the database
     postgresql_privs: db={{dbname}} role={{dbuser}} type=database priv=ALL state=absent
 
+- copy:
+    src: pg_hba.conf
+    dest: /var/lib/pgsql/data/
+    owner: postgres
+    group: postgres
+    mode: 0644
+
+- systemd:
+    name: postgresql.service
+    state: reloaded
+
+- copy:
+    src: askbot_uwsgi.service
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+    mode: 0644
+
+- name: starting uwsgi service
+  - systemd: state=started name=askbot_uwsgi.service
+  - systemd: state=enable name=askbot_uwsgi.service
+
   - name: install askbot
     command: virtualenv askbot
     chdir: askbot/
@@ -37,5 +59,23 @@
     command: git clone https://github.com/ASKBOT/askbot-devel.git askbot-devel
     chdir: askbot-devel/
     command: python setup.py develop
-    command: askbot-setup -n /home/vagrant/askbot/askbot-devel/ -e 1 -d askbotdb -u askbot -p 123456
-    command:  
+    command: askbot-setup -n /home/vagrant/askbot/askbot-devel/ -e 1 -d askbotdb -u askbot -p 123456 
+    command: python manage.py syncdb
+    command: python manage.py collectstatic
+
+- copy:
+    src: askbot_uwsgi.ini
+    dest: /home/vagrant/askbot/askbot-devel/
+    owner: vagrant
+    group: vagrant
+    mode: 0644
+
+- copy:
+    src: settings.py
+    dest: /home/vagrang/askbot/askbot-devel/
+    owner: vagrant
+    group: vagrant
+    mode: 0644
+
+  - name: starting askbot
+    command: python manage.py runserver 0.0.0.0:3031
