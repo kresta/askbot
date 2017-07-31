@@ -44,7 +44,7 @@
 
   - systemd:
      name: postgresql.service
-     state: reloaded
+     state: restarted
 
   - copy:
      src: askbot_uwsgi.service
@@ -62,11 +62,11 @@
 
   - systemd:
      name: nginx.service
-     state: reloaded
+     state: restarted
 
   - systemd:
      name: askbot_uwsgi.service
-     state: reloaded
+     state: restarted
 
 - hosts: webservers
   become: yes
@@ -136,9 +136,9 @@
   tasks:
   - systemd:
      name: askbot_uwsgi.service
-     state: reloaded
+     state: restarted
 
-  - name: starting askbot
-    command: /home/vagrant/askbot/bin/python manage.py runserver 0.0.0.0:3031
-    args:
-     chdir: askbot/askbot-devel/
+#  - name: starting askbot
+#    command: /home/vagrant/askbot/bin/python manage.py runserver 0.0.0.0:3031
+#    args:
+#     chdir: askbot/askbot-devel/
