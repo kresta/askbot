@@ -25,57 +25,110 @@
 
   - name: ensure user does not have unnecessary privilege
     postgresql_user: name={{dbuser}} role_attr_flags=LOGIN
-  
+
   - name: ensure no other user can access the database
     postgresql_privs: db={{dbname}} role={{dbuser}} type=database priv=ALL state=absent
 
-- copy:
-    src: pg_hba.conf
-    dest: /var/lib/pgsql/data/
-    owner: postgres
-    group: postgres
-    mode: 0644
+- hosts: webservers
+  become: yes
+  become_user: root
+  gather_facts: no
 
-- systemd:
-    name: postgresql.service
-    state: reloaded
+  tasks:
+  - copy:
+     src: pg_hba.conf
+     dest: /var/lib/pgsql/data/
+     owner: postgres
+     group: postgres
+     mode: 0644
 
-- copy:
-    src: askbot_uwsgi.service
-    dest: /etc/systemd/system/
-    owner: root
-    group: root
-    mode: 0644
+  - systemd:
+     name: postgresql.service
+     state: reloaded
 
-- name: starting uwsgi service
-  - systemd: state=started name=askbot_uwsgi.service
-  - systemd: state=enable name=askbot_uwsgi.service
+  - copy:
+     src: askbot_uwsgi.service
+     dest: /etc/systemd/system/
+     owner: root
+     group: root
+     mode: 0644
 
-  - name: install askbot
-    command: virtualenv askbot
-    chdir: askbot/
-    command: bin/activate
-    command: pip install uwsgi
-    command: git clone https://github.com/ASKBOT/askbot-devel.git askbot-devel
-    chdir: askbot-devel/
-    command: python setup.py develop
-    command: askbot-setup -n /home/vagrant/askbot/askbot-devel/ -e 1 -d askbotdb -u askbot -p 123456 
-    command: python manage.py syncdb
-    command: python manage.py collectstatic
+- hosts: webservers
+  become: yes
+  become_user: vagrant
+  gather_facts: no
 
-- copy:
-    src: askbot_uwsgi.ini
-    dest: /home/vagrant/askbot/askbot-devel/
-    owner: vagrant
-    group: vagrant
-    mode: 0644
+  tasks:
+   - name: installing askbot
+     command: virtualenv askbot
 
-- copy:
-    src: settings.py
-    dest: /home/vagrang/askbot/askbot-devel/
-    owner: vagrant
-    group: vagrant
-    mode: 0644
+   - pip:
+      name: uwsgi
+      virtualenv: /home/vagrant/askbot
 
-  - name: starting askbot
-    command: python manage.py runserver 0.0.0.0:3031
+   - pip:
+      name:  psycopg2
+      virtualenv: /home/vagrant/askbot
+
+   - command: git clone https://github.com/ASKBOT/askbot-devel.git askbot/askbot-devel
+     ignore_errors: True
+
+   - command: /home/vagrant/askbot/bin/python setup.py develop
+     args:
+      chdir: askbot/askbot-devel/ 
+
+   - command: /home/vagrant/askbot/bin/askbot-setup -n /home/vagrant/askbot/askbot-devel/ -e 1 -d askbotdb -u askbot -p 123456 
+     # args:
+     #  chdir: askbot/bin/ 
+
+   - copy:
+      src: settings.py
+      dest: /home/vagrant/askbot/askbot-devel/
+      owner: vagrant
+      group: vagrant
+      mode: 0644
+
+   - command: /home/vagrant/askbot/bin/python manage.py syncdb --noinput
+     args:
+      chdir: askbot/askbot-devel/ 
+
+   - command: /home/vagrant/askbot/bin/python manage.py collectstatic --noinput
+     args:
+      chdir: askbot/askbot-devel/ 
+
+   - copy:
+      src: askbot_uwsgi.ini
+      dest: /home/vagrant/askbot/askbot-devel/
+      owner: vagrant
+      group: vagrant
+      mode: 0644
+#     notify: askbot uwsgi service
+
+#  - name: starting uwsgi service
+
+   # - copy:
+   #    src: settings.py
+   #    dest: /home/vagrant/askbot/askbot-devel/
+   #    owner: vagrant
+   #    group: vagrant
+   #    mode: 0644
+
+- hosts: webservers
+  become: yes
+  become_user: root
+  gather_facts: no
+
+  tasks:
+  - systemd:
+     name: askbot_uwsgi.service
+     state: reloaded
+
+#  handlers: 
+   # - name: uwsgi service  
+   #   systemd: name=uwsgi.service  state=started 
+#   - name: askbot uwsgi service
+#     systemd: askbot_uwsgi.service
+#     state: reloaded #name=askbot_uwsgi.service
+
+#  - name: starting askbot
+#    command: python manage.py runserver 0.0.0.0:3031

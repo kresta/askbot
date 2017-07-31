@@ -47,12 +47,6 @@ package { 'fabric':
     require => Package['epel-release']
 }
 
-package { 'uwsgi':
-    ensure => latest,
-    name   => 'uwsgi',
-    require => Package['epel-release']
-}
-
 package { 'python2-pip':
     ensure => latest,
     name   => 'python2-pip',
