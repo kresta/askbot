@@ -53,6 +53,10 @@
      group: root
      mode: 0644
 
+  - systemd:
+     name: askbot_uwsgi.service
+     state: reloaded
+
 - hosts: webservers
   become: yes
   become_user: vagrant
@@ -94,7 +98,7 @@
 
    - command: /home/vagrant/askbot/bin/python manage.py collectstatic --noinput
      args:
-      chdir: askbot/askbot-devel/ 
+      chdir: askbot/askbot-devel/
 
    - copy:
       src: askbot_uwsgi.ini
@@ -123,12 +127,7 @@
      name: askbot_uwsgi.service
      state: reloaded
 
-#  handlers: 
-   # - name: uwsgi service  
-   #   systemd: name=uwsgi.service  state=started 
-#   - name: askbot uwsgi service
-#     systemd: askbot_uwsgi.service
-#     state: reloaded #name=askbot_uwsgi.service
-
-#  - name: starting askbot
-#    command: python manage.py runserver 0.0.0.0:3031
+  - name: starting askbot
+    command: /home/vagrant/askbot/bin/python manage.py runserver 0.0.0.0:3031
+    args:
+     chdir: askbot/askbot-devel/
