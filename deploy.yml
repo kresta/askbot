@@ -53,6 +53,17 @@
      group: root
      mode: 0644
 
+  - copy:
+     src: nginx.conf
+     dest: /etc/nginx/
+     owner: root
+     group: root
+     mode: 0644
+
+  - systemd:
+     name: nginx.service
+     state: reloaded
+
   - systemd:
      name: askbot_uwsgi.service
      state: reloaded
