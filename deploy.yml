@@ -138,8 +138,8 @@
      name: askbot_uwsgi.service
      state: restarted
 
- - name: starting askbot
+  - name: starting askbot
     command: /home/vagrant/askbot/bin/python manage.py runserver 0.0.0.0:3031 
     args:
-     chdir: askbot/askbot-devel/
+      chdir: askbot/askbot-devel/
 
