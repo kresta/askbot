@@ -63,13 +63,6 @@
      group: root
      mode: 0644
 
-  - copy:
-     src: config
-     dest: /etc/selinux/
-     owner: root
-     group: root
-     mode: 0644
-
   - systemd:
      name: nginx.service
      state: restarted
