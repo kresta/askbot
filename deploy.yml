@@ -46,6 +46,9 @@
      name: postgresql.service
      state: restarted
 
+  - selinux:
+     state: disabled
+
   - copy:
      src: askbot_uwsgi.service
      dest: /etc/systemd/system/
@@ -56,6 +59,13 @@
   - copy:
      src: nginx.conf
      dest: /etc/nginx/
+     owner: root
+     group: root
+     mode: 0644
+
+  - copy:
+     src: config
+     dest: /etc/selinux/
      owner: root
      group: root
      mode: 0644
@@ -138,8 +148,8 @@
      name: askbot_uwsgi.service
      state: restarted
 
-  - name: starting askbot
-    command: uwsgi --socket :3031 --chdir ~/askbot/askbot-devel/ --wsgi-file /home/vagrant/askbot/askbot-devel/django.wsgi --master --processes 4 --threads 2 --module "django.core.wsgi:get_wsgi_application()" 
-    args:
-      chdir: askbot/askbot-devel/
+#  - name: starting askbot
+#    command: uwsgi --socket :3031 --chdir /home/vagrant/askbot/askbot-devel/ --wsgi-file /home/vagrant/askbot/askbot-devel/django.wsgi --master --processes 4 --threads 2 --module "django.core.wsgi:get_wsgi_application()" 
+#    args:
+#      chdir: /home/vagrant/askbot/askbot-devel/
 
